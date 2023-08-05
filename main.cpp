@@ -377,7 +377,7 @@ int main() {
         std::cout << "4: DFS & BFS" << std::endl;
         std::cout << "5: Quit" << std::endl;
 
-        std::cout << "Please Enter a selection 1-4:" << std::endl;
+        std::cout << "Please Enter a selection 1-5:" << std::endl;
         std::cin>> user_input;
 
         // Print inorder traversal
