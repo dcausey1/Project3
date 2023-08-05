@@ -62,7 +62,7 @@ private:
             return totalMinutesDelayed;
         }
 
-        const std::map<std::string, Airline> &getAirlines() const {
+        std::map<std::string, Airline> &getAirlines() {
             return airlines;
         }
 
@@ -88,6 +88,10 @@ public:
 
     void printInOrder() const {
         printInOrderRecursive(root);
+    }
+
+    void printCodes() const {
+        printCodesRecursive(root);
     }
 
     std::map<std::string, int> getTotalMinutesDelayedByAirline() const {
@@ -144,7 +148,19 @@ private:
             printInOrderRecursive(currentNode->left);
             std::cout << "Airport: " << currentNode->getCode() << std::endl << "Airlines: ";
             for (const auto &airlinePair: currentNode->getAirlines()) {
-                std::cout << airlinePair.first << "\"" << ", ";
+                std::string str;
+                // Do not print any leading or trailing quote marks
+                if (airlinePair.first[0] == '"') {
+                    str = airlinePair.first.substr(1);
+                    std::cout << "\"" << str << "\"" << ", ";
+                }
+                else if (airlinePair.first[airlinePair.first.size() - 1] == '"') {
+                    str = airlinePair.first.substr(0, airlinePair.first.size() - 1);
+                    std::cout << "\"" << str << "\"" << ", ";
+                }
+                else {
+                    std::cout << "\"" << airlinePair.first << "\"" << ", ";
+                }
             }
             int airportTotalMinutedDelayed = 0;
             for (const auto &airlinePair: currentNode->getAirlines()) {
@@ -155,6 +171,14 @@ private:
                       << std::endl;
             std::cout << std::endl;
             printInOrderRecursive(currentNode->right);
+        }
+    }
+
+    void printCodesRecursive(std::shared_ptr<AirportNode> currentNode) const {
+        if (currentNode != nullptr) {
+            printCodesRecursive(currentNode->left);
+            std::cout << currentNode->getCode() << " ";
+            printCodesRecursive(currentNode->right);
         }
     }
 
@@ -319,18 +343,19 @@ int main() {
         std::getline(iss, statMinutesDelayedTotal, ',');
         std::getline(iss, statMinDelayedWeather, ',');
         statMinutesDelayedTotal = statMinutesDelayedSecurity;
+        // Add data into the tree
         airportBST.insertAirport(airportCode);
         for (size_t i = 0; i < elements.size(); ++i) {
             airportBST.addAirlineToAirport(airportCode, elements[i], std::stoi(statMinutesDelayedTotal));
         }
 
-// Clear the vectors for the next iteration
+        // Clear the vectors for the next iteration
         elements.clear();
         late.clear();
     }
 
 
-
+    // Initialize variables for interface and execution timer
     std::string strIn;
     bool stop = true;
     auto startTime =std::chrono::high_resolution_clock::now();
@@ -338,36 +363,49 @@ int main() {
     auto duration=std::chrono::duration_cast<std::chrono::microseconds>(endTIme - startTime);
     int user_input;
 
-while(stop) {
-    std::cout << "****************************************************" << std::endl;
-    std::cout << "****************************************************" << std::endl;
-    std::cout << "Do You Want To Find the Best Airport For Less Delays?" << std::endl;
-    std::cout << "****************************************************" << std::endl;
-    std::cout << "****************************************************" << std::endl;
-    std::cout << "Menu:" << std::endl;
-    std::cout << "1:BFS" << std::endl;
-    std::cout << "2:DFS" << std::endl;
-    std::cout << "3:DFS & BFS" << std::endl;
-    std::cout << "4:Quit" << std::endl;
+    // UI menu
+    while(stop) {
+        std::cout << "****************************************************" << std::endl;
+        std::cout << "****************************************************" << std::endl;
+        std::cout << "Do You Want To Find the Best Airport For Less Delays?" << std::endl;
+        std::cout << "****************************************************" << std::endl;
+        std::cout << "****************************************************" << std::endl;
+        std::cout << "Menu:" << std::endl;
+        std::cout << "1: Print inorder traversal of tree" << std::endl;
+        std::cout << "2: BFS" << std::endl;
+        std::cout << "3: DFS" << std::endl;
+        std::cout << "4: DFS & BFS" << std::endl;
+        std::cout << "5: Quit" << std::endl;
 
-    std::cout << "Please Enter a selection 1-4:" << std::endl;
-    std::cin>> user_input;
-    if(user_input == 1) {
-        airportBST.printInOrder();
-        std::cout << "\nEnter airport code: " << std::endl;
-        std::cin >> strIn;
-        std::cout << "BFS:" << std::endl;
-        startTime = std::chrono::high_resolution_clock::now();
-        airportBST.BFS(strIn);
-        endTIme = std::chrono::high_resolution_clock::now();
-        duration = std::chrono::duration_cast<std::chrono::microseconds>(endTIme - startTime);
-        std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
-        std::cout << std::endl;
+        std::cout << "Please Enter a selection 1-4:" << std::endl;
+        std::cin>> user_input;
 
-    }
-    if(user_input == 2){
+        // Print inorder traversal
+        if (user_input == 1) {
             airportBST.printInOrder();
-            std::cout << "\nEnter airport code: " << std::endl;
+        }
+
+        // Execute BFS and show time recorded
+        if(user_input == 2) {
+            std::cout << "Airport codes:" << std::endl;
+            airportBST.printCodes();
+            std::cout << "\nEnter code from list above: " << std::endl;
+            std::cin >> strIn;
+            std::cout << "BFS:" << std::endl;
+            startTime = std::chrono::high_resolution_clock::now();
+            airportBST.BFS(strIn);
+            endTIme = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::microseconds>(endTIme - startTime);
+            std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
+            std::cout << std::endl;
+
+        }
+
+        // Execute DFS and show time recorded
+        if(user_input == 3){
+            std::cout << "Airport codes:" << std::endl;
+            airportBST.printCodes();
+            std::cout << "\nEnter code from list above: " << std::endl;
             std::cin >> strIn;
             std::cout << "DFS:" << std::endl;
             startTime = std::chrono::high_resolution_clock::now();
@@ -375,10 +413,14 @@ while(stop) {
             endTIme = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::microseconds>(endTIme - startTime);
             std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
-            }
-    if (user_input == 3){
-            airportBST.printInOrder();
-            std::cout << "\nEnter airport code: " << std::endl;
+            std::cout << std::endl;
+        }
+
+        // Execute both BFS and DFS and show times recorded for each
+        if (user_input == 4){
+            std::cout << "Airport codes:" << std::endl;
+            airportBST.printCodes();
+            std::cout << "\nEnter code from list above: " << std::endl;
             std::cin >> strIn;
             std::cout << "BFS:" << std::endl;
             startTime = std::chrono::high_resolution_clock::now();
@@ -393,14 +435,16 @@ while(stop) {
             endTIme = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::microseconds>(endTIme - startTime);
             std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
-            }
-    if(user_input == 4){
+            std::cout << std::endl;
+        }
+
+        // Exit
+        if(user_input == 5){
             std::cout << "Thank You For Using Our Application" << std::endl;
             stop = false;
             break;}
     }
 
-
-
+    // Close program
     return 0;
 }
