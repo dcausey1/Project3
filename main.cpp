@@ -147,21 +147,25 @@ private:
         if (currentNode != nullptr) {
             printInOrderRecursive(currentNode->left);
             std::cout << "Airport: " << currentNode->getCode() << std::endl << "Airlines: ";
-            for (const auto &airlinePair: currentNode->getAirlines()) {
+
+            bool isFirst = true; //bool to indicate if it is the first airline
+            for (const auto& airlinePair : currentNode->getAirlines()) {
                 std::string str;
-                // Do not print any leading or trailing quote marks
+                //Do not print any leading or trailing quote marks
                 if (airlinePair.first[0] == '"') {
                     str = airlinePair.first.substr(1);
-                    std::cout << "\"" << str << "\"" << ", ";
+                    std::cout << (isFirst ? "" : ", ") << "\"" << str << "\"";
                 }
                 else if (airlinePair.first[airlinePair.first.size() - 1] == '"') {
                     str = airlinePair.first.substr(0, airlinePair.first.size() - 1);
-                    std::cout << "\"" << str << "\"" << ", ";
+                    std::cout << (isFirst ? "" : ", ") << "\"" << str << "\"";
                 }
                 else {
-                    std::cout << "\"" << airlinePair.first << "\"" << ", ";
+                    std::cout << (isFirst ? "" : ", ") << "\"" << airlinePair.first << "\"";
                 }
+                isFirst = false; //Set isFirst to false after the first airline
             }
+
             int airportTotalMinutedDelayed = 0;
             for (const auto &airlinePair: currentNode->getAirlines()) {
                 airportTotalMinutedDelayed += airlinePair.second.getTotalMinutesDelayed();
@@ -286,7 +290,7 @@ int main() {
     AirportBST airportBST;
 
     // Read data from CSV file and populate the AirportBST
-    std::ifstream inputFile("airlines.csv");
+    std::ifstream inputFile("/Users/jcondrey25/COP3530Project3/airlines.csv");
     if (!inputFile.is_open()) {
         std::cerr << "Error opening the CSV file." << std::endl;
         return 1;
